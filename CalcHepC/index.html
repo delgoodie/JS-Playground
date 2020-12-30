@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<style>
+    #title {
+        font-size: 5vh;
+        display: block;
+        margin: 0;
+        width: 100vw;
+        text-align: center;
+    }
+</style>
+
+<body>
+    <t id='title'>Hepatitis C Date Calculator</t>
+    <input type='date' id='input'>
+    <script>
+        let today = new Date();
+        document.getElementById('input').value = (today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()).trim();
+
+        function sort(u, s = []) {
+            return u.length > 0 ? sort(u.filter(v => v != u.reduce((min, v2) => min > v2 ? v2 : min, u[0])), s.concat([u.reduce((min, v2) => min > v2 ? v2 : min, u[0])])) : s;
+        }
+
+        console.log(sort([4, 6, 1, 3, 23, 63, 2, 9]));
+    </script>
+</body>
+
+</html>
