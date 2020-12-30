@@ -21,7 +21,7 @@ console.log(zigzag("HOWREL O ELHA"));
 // 13 / x = 13 / 4
 
 //  H   O   W  R
-//  E L   O    
+//  E L   O   
 //  L   H   A
 
 function permutations(l = 0, p = []) {
