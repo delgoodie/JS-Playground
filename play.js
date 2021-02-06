@@ -1,5 +1,5 @@
 function justify(text, l) {
-    return [...new Array(text.length)].reduce(o => ({ before: o.before.indexOf(" ") != -1 ? o.before.substring(o.before.indexOf(" ") + 1) : "", after: o.after.concat([o.before.substring(0, o.before.indexOf(" ") != -1 ? o.before.indexOf(" ") : o.before.length), ]), }), { before: text, after: [] }).after.reduce((acc, v) => (acc += v + (acc.length + v.length - acc.lastIndexOf("\n") > l ? "\n" : " ")), "");
+    return [...new Array(text.length)].reduce(o => ({ before: o.before.indexOf(" ") != -1 ? o.before.substring(o.before.indexOf(" ") + 1) : "", after: o.after.concat([o.before.substring(0, o.before.indexOf(" ") != -1 ? o.before.indexOf(" ") : o.before.length),]), }), { before: text, after: [] }).after.reduce((acc, v) => (acc += v + (acc.length + v.length - acc.lastIndexOf("\n") > l ? "\n" : " ")), "");
 }
 
 function justRE(text, l) {
@@ -21,6 +21,7 @@ function zigzag(text) {
 //  H   O   W  R
 //  E L   O
 //  L   H   A
+
 
 function permutations(l = 0, p = []) {
     if (typeof l == "number") l = [...Array(l)].map((_, i) => i);
