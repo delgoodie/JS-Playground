@@ -49,5 +49,10 @@ function pi(res) {
 
 //console.log(pi(5000));
 
-n = '333';
-for (let c of n) console.log(c);
+//n = '333';
+//for (let c of n) console.log(c);
+
+
+const msg = (![] + [])[+!+[]+!+[]+!+[]] + ([{}] + [])[+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]+!+[]] + ([][[]] + [])[+!+[]];
+
+console.log(msg);
