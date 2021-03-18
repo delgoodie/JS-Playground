@@ -13,11 +13,16 @@
         var __width = canvas.width;
         var __height = canvas.height;
         var __scale = 40;
-        var __offset = { x: 500, y: 100 };
+        var __offset = {
+            x: 500,
+            y: 100
+        };
+
         function drawPoint(p, color) {
             c.fillStyle = color;
             c.fillRect(p.x * __scale - 2 + __offset.x, __height - (p.y * __scale - 2 + __offset.y), 4, 4);
         }
+
         function drawLine(p1, p2, color, lineWidth = 2) {
             c.lineWidth = lineWidth;
             c.strokeStyle = color;
@@ -26,27 +31,48 @@
             c.lineTo(p2.x * __scale + __offset.x, __height - (p2.y * __scale + __offset.y));
             c.stroke();
         }
+
         function drawGrid(rows, cols, center = false) {
-            for (let x = 0; x <= cols; x++) drawLine({ x: x, y: 0 }, { x: x, y: rows }, 'black');
-            for (let y = 0; y <= rows; y++) drawLine({ x: 0, y: y }, { x: cols, y: y }, 'black');
+            for (let x = 0; x <= cols; x++) drawLine({
+                x: x,
+                y: 0
+            }, {
+                x: x,
+                y: rows
+            }, 'black');
+            for (let y = 0; y <= rows; y++) drawLine({
+                x: 0,
+                y: y
+            }, {
+                x: cols,
+                y: y
+            }, 'black');
             if (center) {
-                drawLine({ x: cols / 2, y: 0 }, { x: cols / 2, y: rows }, 'blue', 3);
-                drawLine({ x: 0, y: rows / 2 }, { x: cols, y: rows / 2 }, 'blue', 3);
+                drawLine({
+                    x: cols / 2,
+                    y: 0
+                }, {
+                    x: cols / 2,
+                    y: rows
+                }, 'blue', 3);
+                drawLine({
+                    x: 0,
+                    y: rows / 2
+                }, {
+                    x: cols,
+                    y: rows / 2
+                }, 'blue', 3);
             }
         }
     </script>
     <!--
         <script src='Fantasy Football.js'></script>
         <script src='permutations.js'></script>
-<<<<<<< HEAD
         <script src='play.js'></script>
         <script src='raycast.js'></script>
+        <script src='sphere-projection.js'></script>
     -->
-    <script src='sphere-projection.js'></script>
-=======
-    -->
-    <script src='play.js'></script>
->>>>>>> aaf08a17ad0271c6ecf2ebf09b50fd6c3f3820a1
+    <script src='objectTesting.js'></script>
 </body>
 
 </html>
