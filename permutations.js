@@ -18,6 +18,6 @@ function fac(n) {
 
 
 
-function permutations(l = [], p = []) {
-    return l.length > 0 ? l.reduce((arr, n) => arr.concat(permutations(l.filter(n2 => n2 != n), p.concat([n]))), []) : [p];
-}
+// function permutations(l = [], p = []) {
+//     return l.length > 0 ? l.reduce((arr, n) => arr.concat(permutations(l.filter(n2 => n2 != n), p.concat([n]))), []) : [p];
+// }

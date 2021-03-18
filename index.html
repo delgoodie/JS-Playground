@@ -20,7 +20,13 @@
 
         function drawPoint(p, color) {
             c.fillStyle = color;
-            c.fillRect(p.x * __scale - 2 + __offset.x, __height - (p.y * __scale - 2 + __offset.y), 4, 4);
+            if (__ptMode == 'square')
+                c.fillRect(p.x * __scale - __ptSize / 2 + __offset.x, __height - (p.y * __scale + __offset.y) - __ptSize / 2, __ptSize, __ptSize);
+            else if (__ptMode == 'circle') {
+                c.beginPath();
+                c.arc(p.x * __scale + __offset.x, __height - (p.y * __scale + __offset.y), __ptSize / 2, 0, Math.PI * 2);
+                c.fill();
+            }
         }
 
         function drawLine(p1, p2, color, lineWidth = 2) {
@@ -67,12 +73,14 @@
     </script>
     <!--
         <script src='Fantasy Football.js'></script>
-        <script src='permutations.js'></script>
         <script src='play.js'></script>
         <script src='raycast.js'></script>
         <script src='sphere-projection.js'></script>
+        <script src='vim_practice.js'></script>
+        <script src='permutations.js'></script>
+        <script src='salesman.js'></script>
     -->
-    <script src='objectTesting.js'></script>
+    <script src='hex_gradient.js'></script>
 </body>
 
 </html>

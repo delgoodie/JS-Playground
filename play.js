@@ -1,5 +1,5 @@
 function justify(text, l) {
-    return [...new Array(text.length)].reduce(o => ({ before: o.before.indexOf(" ") != -1 ? o.before.substring(o.before.indexOf(" ") + 1) : "", after: o.after.concat([o.before.substring(0, o.before.indexOf(" ") != -1 ? o.before.indexOf(" ") : o.before.length),]), }), { before: text, after: [] }).after.reduce((acc, v) => (acc += v + (acc.length + v.length - acc.lastIndexOf("\n") > l ? "\n" : " ")), "");
+    return [...new Array(text.length)].reduce(o => ({ before: o.before.indexOf(" ") != -1 ? o.before.substring(o.before.indexOf(" ") + 1) : "", after: o.after.concat([o.before.substring(0, o.before.indexOf(" ") != -1 ? o.before.indexOf(" ") : o.before.length), ]), }), { before: text, after: [] }).after.reduce((acc, v) => (acc += v + (acc.length + v.length - acc.lastIndexOf("\n") > l ? "\n" : " ")), "");
 }
 
 function justRE(text, l) {
@@ -49,5 +49,12 @@ function pi(res) {
 
 //console.log(pi(5000));
 
-n = '333';
-for (let c of n) console.log(c);
+//n = '333';
+//for (let c of n) console.log(c);
+
+
+const msg = (![] + [])[+!+[] + !+[] + !+[]] + ([{}] + [])[+!+[] + !+[] + !+[] + !+[] + !+[] + !+[] + !+[]] + ([][
+    []
+] + [])[+!+[]];
+
+console.log(msg);
