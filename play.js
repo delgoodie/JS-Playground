@@ -51,3 +51,5 @@ function pi(res) {
 
 n = '333';
 for (let c of n) console.log(c);
+
+console.log(['h', 'e', 'l', 'l', 'o'].join(''))
