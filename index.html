@@ -40,6 +40,17 @@
             c.stroke();
         }
 
+        function drawCircle(p, r, color = 'black', solid = false, lineWidth = 2, arc = 2 * Math.PI) {
+            c.strokeStyle = color;
+            c.fillStyle = color;
+            c.beginPath();
+            c.arc(p.x * __scale + __offset.x, __height - (p.y * __scale + __offset.y), r * __scale, 0, arc);
+            if (solid)
+                c.fill();
+            else
+                c.stroke();
+        }
+
         function drawGrid(rows, cols, center = false) {
             for (let x = 0; x <= cols; x++) drawLine({
                 x: x,
@@ -72,6 +83,10 @@
                 }, 'blue', 3);
             }
         }
+
+        function clearScreen() {
+            c.clearRect(0, 0, canvas.width, canvas.height);
+        }
     </script>
     <!--
         <script src='Fantasy Football.js'></script>
@@ -82,8 +97,9 @@
         <script src='permutations.js'></script>
         <script src='salesman.js'></script>
         <script src='hex_gradient.js'></script>
+        <script src='fournier_render_2d.js'></script>
     -->
-    <script src='fournier_render_2d.js'></script>
+    <script src='sphere_intersection.js'></script>
 </body>
 
 </html>
