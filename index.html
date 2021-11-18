@@ -6,19 +6,17 @@
 <body>
     <canvas id='canvas'></canvas>
     <script>
-        var canvas = document.getElementById('canvas');
-        var c = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        var __width = canvas.width;
-        var __height = canvas.height;
-        var __scale = 40;
-        var __ptMode = 'circle';
-        var __ptSize = 2;
-        var __offset = {
-            x: 500,
-            y: 100
-        };
+        const canvas = document.getElementById('canvas'),
+            c = canvas.getContext('2d'),
+            __width = canvas.width = window.innerWidth,
+            __height = canvas.height = window.innerHeight,
+            __scale = 40,
+            __ptMode = 'circle',
+            __ptSize = 2,
+            __offset = {
+                x: 500,
+                y: 100
+            };
 
         function drawPoint(p, color) {
             c.fillStyle = color;
