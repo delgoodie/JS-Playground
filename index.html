@@ -13,12 +13,12 @@
         var __width = canvas.width;
         var __height = canvas.height;
         var __scale = 40;
+        var __ptMode = 'circle';
+        var __ptSize = 2;
         var __offset = {
             x: 500,
             y: 100
         };
-        var __ptSize = 10;
-        var __ptMode = 'circle';
 
         function drawPoint(p, color) {
             c.fillStyle = color;
@@ -38,6 +38,17 @@
             c.moveTo(p1.x * __scale + __offset.x, __height - (p1.y * __scale + __offset.y));
             c.lineTo(p2.x * __scale + __offset.x, __height - (p2.y * __scale + __offset.y));
             c.stroke();
+        }
+
+        function drawCircle(p, r, color = 'black', solid = false, lineWidth = 2, arc = 2 * Math.PI) {
+            c.strokeStyle = color;
+            c.fillStyle = color;
+            c.beginPath();
+            c.arc(p.x * __scale + __offset.x, __height - (p.y * __scale + __offset.y), r * __scale, 0, arc);
+            if (solid)
+                c.fill();
+            else
+                c.stroke();
         }
 
         function drawGrid(rows, cols, center = false) {
@@ -72,6 +83,10 @@
                 }, 'blue', 3);
             }
         }
+
+        function clearScreen() {
+            c.clearRect(0, 0, canvas.width, canvas.height);
+        }
     </script>
     <!--
         <script src='Fantasy Football.js'></script>
@@ -82,7 +97,8 @@
         <script src='permutations.js'></script>
         <script src='salesman.js'></script>
         <script src='hex_gradient.js'></script>
-        <script src='pCn.js'></script>
+        <script src='fournier_render_2d.js'></script>
+        <script src='sphere_intersection.js'></script>
     -->
     <script src='linear_algebra.js'></script>
 </body>

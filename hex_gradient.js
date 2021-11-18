@@ -29,6 +29,8 @@ function hex_gradient(colors, positions, pos) {
 }
 
 
-var color = hex_gradient(['#020024', '#693d0e', '#2424d0', '#54c280', '#00d4ff'], [0, .13, .31, .44, 1.0], .35);
+var currentProgress = 60 / 100; // 60% of goal
+
+var color = hex_gradient(['#ff0000', '#d2ee06', '#0300e7', '#00ff37'], [0, .26, .80, 1.0], currentProgress);
 
 console.log(color);
