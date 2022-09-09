@@ -85,6 +85,20 @@
         function clearScreen() {
             c.clearRect(0, 0, canvas.width, canvas.height);
         }
+
+        function createLoop(loop) {
+
+            let anim_loop = () => {
+                clearScreen();
+
+                loop();
+
+                requestAnimationFrame(anim_loop);
+            }
+
+            requestAnimationFrame(anim_loop);
+        }
+
     </script>
     <!--
         <script src='Fantasy Football.js'></script>
@@ -97,8 +111,10 @@
         <script src='hex_gradient.js'></script>
         <script src='fournier_render_2d.js'></script>
         <script src='sphere_intersection.js'></script>
+        <script src='linear_algebra.js'></script>
+        <script src='wave1D.js'></script>
     -->
-    <script src='linear_algebra.js'></script>
+    <script src='fournier_again.js'></script>
 </body>
 
 </html>
