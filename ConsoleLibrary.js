@@ -20,9 +20,9 @@ window.math = {
     poissondist: (x, lambda) => Math.exp(-lambda) * lambda ** x / math.fac(x),
     cumpoissondist: (x1, x2, lambda) => [...Array(x2 - x1 + 1)].reduce((a, _, i) => a + math.poisson(i + x1, lambda), 0),
     multinomialdist: (prob, x, n = 0) => math.fac(n ? n : x.reduce((a, v) => a + v, 0)) / x.reduce((a, v) => a * math.fac(v), 1) * prob.reduce((a, v, i) => a * v ** x[i], 1),
-    normdist: (x, mean = 0, stdev = 1) => 1 / (stdev * (2 * Math.PI) ** .5) * Math.exp(-.5 * ((x - mean) / stdev) ** 2),
-    erf: x => Math.tanh(x * Math.PI / 6 ** .5),
-    cumstdnormdist: (x, iters = 100) => .5 + 1 / (2 * Math.PI) ** .5 * [...Array(iters)].reduce((a, _, i) => a + (-1) ** i * Math.max(Math.min(x, 7.24067455), -7.24067455) ** (2 * i + 1) / 2 ** i / math.fac(i) / (2 * i + 1), 0),
+    normdist: (x, mean = 0, stdev = 1) => 1 / (stdev * (2 * PI) ** .5) * Math.exp(-.5 * ((x - mean) / stdev) ** 2),
+    erf: x => Math.tanh(x * PI / 6 ** .5),
+    cumstdnormdist: (x, iters = 100) => .5 + 1 / (2 * PI) ** .5 * [...Array(iters)].reduce((a, _, i) => a + (-1) ** i * Math.max(Math.min(x, 7.24067455), -7.24067455) ** (2 * i + 1) / 2 ** i / math.fac(i) / (2 * i + 1), 0),
     cumnormdist: (x, mean, stdev) => math.cumstdnormdist((x - mean) / stdev, 100),
     invcumnormdist: (p, mean = 0, stdev = 1, tol = .0001) => {
         x = mean, cp = 0;
@@ -35,7 +35,8 @@ window.math = {
     pCn_uo: (p, n, l = []) => p.reduce((ac, v, i, ar) => [...ac, ...n > 1 ? math.pCn_uo(ar.slice(i + 1), n - 1, [...l, v]) : [[...l, v]]], []),
 }
 class Vec {
-    constructor(a, b, IsPolar = 0) {
+    constructor(a, b, IsPolar = 0, base = undefined) {
+        this._base = base;
         if (a instanceof Vec) {
             this._x = a.X;
             this._y = a.Y;
@@ -75,7 +76,7 @@ class Vec {
     set Y(y) { if (!this._rectUpdated) this._updaterect(); this._y = y; this._updatepolar(); this._polarUpdated = false; }
     set T(t) { if (!this._polarUpdated) this._updatepolar(); this._t = t % (PI * 2); this._updaterect(); this._rectUpdated = false; }
     set R(r) { if (!this._polarUpdated) this._updatepolar(); this._r = r; this._updaterect(); this._rectUpdated = false; }
-    _updatepolar() { this._t = Math.atan(this.Y / this.X); this._r = Math.hypot(this.X, this.Y); this._polarUpdated = true; }
+    _updatepolar() { this._t = ((this.X < 0 || this.Y < 0) ? PI : 0) + ((this.X > 0 && this.Y < 0) ? PI : 0) + (this.X == 0 ? PI / 2 : Math.atan(this.Y / this.X)); this._r = Math.hypot(this.X, this.Y); this._polarUpdated = true; }
     _updaterect() { this._x = Math.cos(this.T) * this.R; this._y = Math.sin(this.T) * this.R; this._rectUpdated = true; }
 
 
@@ -107,6 +108,7 @@ class Point {
     get R() { return this._vec.R; }
     get T() { return this._vec.T; }
     get V() { return this._vec; }
+    set V(x) { this._vec.X = x.X; this._vec.Y = x.Y; }
 }
 class Line {
     constructor(a, b, c, d) {
@@ -240,15 +242,20 @@ window.canvas = {
                 if (!('color' in obj)) obj.color = canvas._unusedColors.shift();
 
                 if (obj instanceof Vec) {
+
+                    let base = obj._base ? obj._base._vec : new Vec(0, 0);
+                    // console.log(obj._base);
+                    let tip = obj._base ? obj._base._vec.add(obj) : obj;
+
                     canvas.setLineWidth(3);
                     canvas.setStrokeColor(obj.color);
                     canvas.beginPath();
-                    canvas.moveTo(new Vec(0, 0));
-                    canvas.lineTo(obj);
-                    canvas.moveTo(obj.add(new Vec(.3, obj.T + PI / 1.2, true)));
-                    canvas.lineTo(obj);
-                    canvas.moveTo(obj.add(new Vec(.3, obj.T - PI / 1.2, true)));
-                    canvas.lineTo(obj);
+                    canvas.moveTo(base);
+                    canvas.lineTo(tip);
+                    canvas.moveTo(tip.add(new Vec(.2, obj.T + PI / 1.2, true)));
+                    canvas.lineTo(tip);
+                    canvas.moveTo(tip.add(new Vec(.2, obj.T - PI / 1.2, true)));
+                    canvas.lineTo(tip);
                     canvas.stroke();
 
                     canvas._context.font = '24px Arial';
@@ -299,7 +306,7 @@ window.canvas = {
         return newObj;
     },
     makeVec(a, b) {
-        let newObj = new Vec(a, b);
+        let newObj = (a instanceof Vec) ? new Vec(a.X, a.Y) : new Vec(a, b);
         canvas.add(newObj);
         return newObj;
 
