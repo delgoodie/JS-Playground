@@ -1,9 +1,13 @@
 window.PI = Math.PI;
 window.round = (x, d) => Math.round(x * 10 ** d) / 10 ** d;
+window.R2D = r => r * 180 / PI;
+window.D2R = d => d / 180 * PI;
 
 window.math = {
     //basic ops
     fac: x => x > 1 ? math.fac(x - 1) * x : 1,
+
+    lerp: (a, b, t) => a + (b - a) * Math.max(Math.min(t, 1), 0),
 
     // probability
     mean: data => data.reduce((a, v) => a + v, 0) / data.length,
@@ -35,9 +39,14 @@ window.math = {
     pCn_uo: (p, n, l = []) => p.reduce((ac, v, i, ar) => [...ac, ...n > 1 ? math.pCn_uo(ar.slice(i + 1), n - 1, [...l, v]) : [[...l, v]]], []),
 }
 class Vec {
-    constructor(a, b, IsPolar = 0, base = undefined) {
-        this._base = base;
-        if (a instanceof Vec) {
+    constructor(a, b, IsPolar = 0, props = undefined) {
+        if (props) {
+            this._base = props.base;
+            this._trace = props.trace;
+            this._color = props.color;
+            this._alpha = props.alpha;
+        }
+        if ((a instanceof Vec) || (a instanceof Point)) {
             this._x = a.X;
             this._y = a.Y;
             this._polarUpdated = false;
@@ -49,22 +58,20 @@ class Vec {
             this._polarUpdated = false;
             this._rectUpdated = true;
         }
-        else if (typeof (a) == 'number' && typeof (b) == 'number') {
+        else if (typeof (a) == 'number') {
             if (IsPolar) {
-                this._r = a;
-                this._t = b;
+                if (typeof (b) == 'number') { this._r = a; this._t = b; } else { this._t = a; this._r = 1; }
                 this._polarUpdated = true;
                 this._rectUpdated = false;
             }
             else {
-                this._x = a;
-                this._y = b;
+                if (typeof (b) == 'number') { this._x = a; this._y = b; } else { this._x = a; this._y = a; }
                 this._polarUpdated = false;
                 this._rectUpdated = true;
             }
         }
         else {
-            console.log('Invalid Vec initialization');
+            throw `Invalid Vec initialization ${a} ${b} ${IsPolar} ${base}`;
         }
     }
 
@@ -72,10 +79,14 @@ class Vec {
     get Y() { if (!this._rectUpdated) this._updaterect(); return this._y; }
     get T() { if (!this._polarUpdated) this._updatepolar(); return this._t; }
     get R() { if (!this._polarUpdated) this._updatepolar(); return this._r; }
+    get Base() { return this._base || new Vec(0, 0); }
+    get Trace() { return this._trace; }
+    get Tip() { return this._base ? this._base.add(this) : this }
     set X(x) { if (!this._rectUpdated) this._updaterect(); this._x = x; this._polarUpdated = false; }
     set Y(y) { if (!this._rectUpdated) this._updaterect(); this._y = y; this._updatepolar(); this._polarUpdated = false; }
     set T(t) { if (!this._polarUpdated) this._updatepolar(); this._t = t % (PI * 2); this._updaterect(); this._rectUpdated = false; }
     set R(r) { if (!this._polarUpdated) this._updatepolar(); this._r = r; this._updaterect(); this._rectUpdated = false; }
+    set Base(b) { this._base = b; }
     _updatepolar() { this._t = ((this.X < 0 || this.Y < 0) ? PI : 0) + ((this.X > 0 && this.Y < 0) ? PI : 0) + (this.X == 0 ? PI / 2 : Math.atan(this.Y / this.X)); this._r = Math.hypot(this.X, this.Y); this._polarUpdated = true; }
     _updaterect() { this._x = Math.cos(this.T) * this.R; this._y = Math.sin(this.T) * this.R; this._rectUpdated = true; }
 
@@ -83,24 +94,36 @@ class Vec {
     static Add(v1, v2) { return new Vec(v1.X + v2.X, v1.Y + v2.Y); }
     static Dot(v1, v2) { return v1.X * v2.X + v1.Y * v2.Y; }
     static Sub(v1, v2) { return new Vec(v1.X - v2.X, v1.Y - v2.Y); }
-    static Mul(v1, c) { return new Vec(v1.X * c, v1.Y * c); }
-    static Pow(v, x) { return new Vec(Math.pow(v.X, x), Math.pow(v.Y, x)); }
+    static Mul(v1, v2) { return new Vec(v1.X * v2.X, v1.Y * v2.Y); }
+    static Div(v1, v2) { return new Vec(v1.X / v2.X, v1.Y / v2.Y); }
+    static AngleBetween(v1, v2) { return (v1.T - v2.T + PI * 4) % PI; }
+    static Pow(v, x) { return v.normalized.mul(Math.pow(v.R, x)); }
     static Normalize(v) { let r = v.R; v.X /= r; v.Y /= r; return v; }
 
-    add(v) { return Vec.Add(this, v); }
-    dot(v) { return Vec.Dot(this, v); }
-    sub(v) { return Vec.Sub(this, v); }
-    mul(v) { return Vec.Mul(this, v); }
+    add(v) { return Vec.Add(this, new Vec(v)); }
+    dot(v) { return Vec.Dot(this, new Vec(v)); }
+    sub(v) { return Vec.Sub(this, new Vec(v)); }
+    mul(v) { return Vec.Mul(this, new Vec(v)); }
+    div(v) { return Vec.Div(this, new Vec(v)); }
+    angleBetween(v) { return Vec.AngleBetween(this, v); }
+    proj(v) { return v.mul(v.dot(this)); }
+    pow(x) { return Vec.Pow(this, x); }
     set(a, b, isPolar = false) {
         let newVec = new Vec(a, b, isPolar);
         this.X = newVec.X;
         this.Y = newVec.Y;
     }
-    normalize(v) { return Vec.Normalize(this, v); }
+    toString() { return `${round(this.X, 2)} ${round(this.Y, 2)}` }
+    normalize() { return Vec.Normalize(this); }
     get normalized() { return new Vec(this.X / this.R, this.Y / this.R); }
 }
 class Point {
-    constructor(a, b, IsPolar = false) {
+    constructor(a, b, IsPolar = false, props = undefined) {
+        if (props) {
+            this._trace = props.trace;
+            this._color = props.color;
+            this._alpha = props.alpha;
+        }
         this._vec = new Vec(a, b, IsPolar);
     }
     get X() { return this._vec.X; }
@@ -108,17 +131,25 @@ class Point {
     get R() { return this._vec.R; }
     get T() { return this._vec.T; }
     get V() { return this._vec; }
+    get Trace() { return this._trace; }
     set V(x) { this._vec.X = x.X; this._vec.Y = x.Y; }
+
+    add(v) { return Vec.Add(this.V, v); }
+    sub(v) { return Vec.Sub(this.V, v); }
 }
 class Line {
-    constructor(a, b, c, d) {
+    constructor(a, b, c, d, props) {
+        if (props) {
+            this._color = props.color;
+            this._alpha = props.alpha;
+        }
         if (typeof (a) == 'number' && typeof (b) == 'number') {
             this.A = new Vec(a, b);
             this.B = new Vec(c, d);
         }
         else if (a instanceof Vec || a instanceof Point || a instanceof Array) {
-            this.A = new Vec(a);
-            this.B = new Vec(b, c);
+            this.A = a;
+            this.B = b;
         }
     }
 
@@ -127,6 +158,15 @@ class Line {
     }
     setB(a = 0, b = 0) {
         this.B = new Vec(a, b);
+    }
+}
+
+class Text {
+    constructor(getText, point, color, opacity) {
+        this.getText = getText;
+        this.P = point;
+        this._color = color;
+        this._alpha = opacity;
     }
 }
 
@@ -154,6 +194,7 @@ window.canvas = {
     },
 
     _objects: [],
+    _trace_points: [],
     _loop_functions: [],
 
     _init() {
@@ -239,49 +280,51 @@ window.canvas = {
             // Draw Objects
             let textY = 30;
             canvas._objects.forEach(obj => {
-                if (!('color' in obj)) obj.color = canvas._unusedColors.shift();
-
+                if (!('_color' in obj)) obj._color = canvas._unusedColors.shift();
+                canvas.setStrokeColor(obj._color);
+                canvas.setFillColor(obj._color);
+                canvas._context.globalAlpha = obj._alpha || 1;
                 if (obj instanceof Vec) {
-
-                    let base = obj._base ? obj._base._vec : new Vec(0, 0);
-                    // console.log(obj._base);
-                    let tip = obj._base ? obj._base._vec.add(obj) : obj;
-
                     canvas.setLineWidth(3);
-                    canvas.setStrokeColor(obj.color);
+
                     canvas.beginPath();
-                    canvas.moveTo(base);
-                    canvas.lineTo(tip);
-                    canvas.moveTo(tip.add(new Vec(.2, obj.T + PI / 1.2, true)));
-                    canvas.lineTo(tip);
-                    canvas.moveTo(tip.add(new Vec(.2, obj.T - PI / 1.2, true)));
-                    canvas.lineTo(tip);
+                    canvas.moveTo(obj.Base);
+                    canvas.lineTo(obj.Tip);
+                    canvas.moveTo(obj.Tip.add(new Vec(Math.min(.2, obj.R / 2), obj.T + PI / 1.2, true)));
+                    canvas.lineTo(obj.Tip);
+                    canvas.moveTo(obj.Tip.add(new Vec(Math.min(.2, obj.R / 2), obj.T - PI / 1.2, true)));
+                    canvas.lineTo(obj.Tip);
                     canvas.stroke();
 
                     canvas._context.font = '24px Arial';
-
-                    canvas._context.fillText(
-                        'Vec ' + canvas._objects.indexOf(obj) +
-                        '  X: ' + round(obj.X, 2) + ' Y: ' + round(obj.Y, 2) +
-                        '  R: ' + round(obj.R, 2) + ' T: ' + round(obj.T, 2) + ' (' + round(obj.T * 180 / PI, 1) + ')',
-                        20, textY
-                    );
-                    textY += 30;
                 }
                 else if (obj instanceof Point) {
-                    canvas.setFillColor(obj.color);
                     canvas.beginPath();
                     canvas.arc(obj, .1);
                     canvas.fill();
+
+                    if (obj.Trace) {
+                        canvas._trace_points.push({ x: obj.X, y: obj.Y, c: obj._color });
+                    }
                 }
                 else if (obj instanceof Line) {
                     canvas.setLineWidth(3);
-                    canvas.setStrokeColor(obj.color);
                     canvas.beginPath();
                     canvas.moveTo(obj.A);
                     canvas.lineTo(obj.B);
                     canvas.stroke();
                 }
+                else if (obj instanceof Text) {
+                    canvas._context.fillText(obj.getText(dt), obj.P ? obj.P.X : 20, obj.P ? obj.P.Y : textY);
+                    textY += 30;
+                }
+            });
+
+            canvas._trace_points.forEach(p => {
+                canvas.setFillColor(p.c);
+                canvas.beginPath();
+                canvas.arc(new Vec(p.x, p.y), .02);
+                canvas.fill();
             });
 
             requestAnimationFrame(loop);
@@ -306,7 +349,7 @@ window.canvas = {
         return newObj;
     },
     makeVec(a, b) {
-        let newObj = (a instanceof Vec) ? new Vec(a.X, a.Y) : new Vec(a, b);
+        let newObj = new Vec(a, b);
         canvas.add(newObj);
         return newObj;
 
@@ -343,6 +386,7 @@ window.canvas = {
     setLineWidth: w => canvas._context.lineWidth = w,
     setStrokeColor: c => canvas._context.strokeStyle = c,
     setFillColor: c => canvas._context.fillStyle = c,
+    clearTrace: () => canvas._trace_points = [],
 }
 
 
